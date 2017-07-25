@@ -1,47 +1,25 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main 
 {
 	public static void main(String[] args) 
 	{
-		System.out.println("rockscissorspaper");
-		
-		InputStream in = null;
-		
-		try {
-			in = new FileInputStream(new File("./samples/test.txt"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		Scanner scanner = new Scanner(in);
+		Scanner scanner = new Scanner(System.in);
 		int cases = scanner.nextInt();
 		for (int i = 0; i < cases; i++) {
 			int rows = scanner.nextInt(),
 				columns = scanner.nextInt(),
 				days = scanner.nextInt();
 			
-			System.out.println("Rows: "+rows+" | Columns: "+columns+" | Days: "+days);
-			
 			int[][] board = Main.createBoard(scanner, rows, columns);
 			
-			Main.solveBoard(board, days);
+			board = Main.solveBoard(board, days);
 			
-			System.out.println("(R): "+(int)'R'+" | (S): "+(int)'S'+" | (P): "+(int)'P');
-			System.out.println("/*** NEXT BOARD ***/");
+			String boardDisplay = Main.getBoardDisplayString(board);
+			System.out.println(boardDisplay);
 		}
 		
-		System.out.println("*** ANSWER ***");
-		
 		scanner.close();
-		try { if (in != null) in.close(); } 
-		catch (IOException e) { e.printStackTrace(); }
 	}
 
 	private static int[][] createBoard(Scanner scanner, int rows, int columns)
@@ -60,18 +38,8 @@ public class Main
 	
 	private static int[][] solveBoard(int[][] board, int days) 
 	{
-		for (int day = 0; day < days; day++) {
-			System.out.println("DAY: "+(day+1));
-			
+		for (int day = 0; day < days; day++)
 			board = Main.simulateWar(board);
-			
-			for (int[] row : board) {
-				for (int cell : row) {
-					System.out.print(cell);
-				}
-				System.out.println(Arrays.toString(row));
-			}
-		}
 		
 		return board;
 	}
@@ -87,7 +55,7 @@ public class Main
 			for (int col = 0; col < width; col++) {
 				int boardCell = boardRow[col];
 				
-				int[] adjacentPositions = Main.getAdjacentPositions(boardCell, row, col, currentBoard);
+				int[] adjacentPositions = Main.getAdjacentPositions(row, col, currentBoard);
 				
 				newBoard[row][col] = Main.positionValueIsDefeated(boardCell, adjacentPositions) ?
 						Main.incrementBoardPositionValue(boardCell) : boardCell;
@@ -97,17 +65,29 @@ public class Main
 		return newBoard;
 	}
 	
+	private static String getBoardDisplayString(int[][] board)
+	{
+		String boardDisplay = "";
+		for (int[] row : board) {
+			for (int cell : row)
+				boardDisplay += Main.convertBoardPositionToCharacter(cell);
+			
+			boardDisplay += "\n";
+		}
+		return boardDisplay;
+	}
+	
 	private static int convertBoardPositionToInteger(char positionValue)
 	{
 		return positionValue == 'R' ? 2 : positionValue == 'S' ? 1 : positionValue == 'P' ? 0 : -1;
 	}
 	
-	private static int convertBoardPositionToCharacter(int positionValue)
+	private static char convertBoardPositionToCharacter(int positionValue)
 	{
 		return positionValue == 2 ? 'R' : positionValue == 1 ? 'S' : positionValue == 0 ? 'P' : '-';
 	}
 	
-	private static int[] getAdjacentPositions(int positionValue, int rowPos, int colPos, int[][] board)
+	private static int[] getAdjacentPositions(int rowPos, int colPos, int[][] board)
 	{
 		int rowLength = board.length, colLength = board[0].length;
 		int 
